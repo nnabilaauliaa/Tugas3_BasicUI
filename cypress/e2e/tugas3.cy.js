@@ -61,10 +61,11 @@ context('Add New Employee', function() {
                 cy.contains(data.lastName).should('be.visible');
 
                 // create account for new employee
-                cy.get('.oxd-text.oxd-text--span.oxd-main-menu-item--name').contains('ESS').click()
+                cy.wait(5000)
+                cy.get('.oxd-text.oxd-text--span.oxd-main-menu-item--name').contains('Admin').click()
                 cy.xpath("//button[@type='button']").contains('Add').click();
                 cy.get('.oxd-icon.bi-caret-down-fill.oxd-select-text--arrow').eq(0).click()
-                cy.get('.oxd-select-dropdown > :nth-child(2)').click()
+                cy.get('.oxd-select-dropdown > :nth-child(3)').click()
                 cy.get('.oxd-autocomplete-text-input.oxd-autocomplete-text-input--active').type(data.firstName + data.lastName)
                 cy.wait(5000)
                 cy.contains('No Records Found')
@@ -88,7 +89,7 @@ context('Add New Employee', function() {
             })
         })
 
-        it.only('Add On Leave', function (){
+        it('Add On Leave', function (){
 
             cy.fixture('adminLogin').then((admin) => {
                 
@@ -112,7 +113,7 @@ context('Add New Employee', function() {
                 cy.wait(1000)
 
                 cy.get('.oxd-autocomplete-option') 
-                .contains('John Doe')
+                .contains(data.firstName)
                 .click()
 
                 cy.get('.oxd-select-text.oxd-select-text--active').eq(0).click()
@@ -131,9 +132,6 @@ context('Add New Employee', function() {
                 cy.get('.orangehrm-modal-footer > .oxd-button--secondary', {timeout: 5000}).contains('Confirm').click();
 
                 logout()
-
-
-
 
             })
 
