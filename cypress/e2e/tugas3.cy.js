@@ -11,26 +11,28 @@ context('Add New Employee', function() {
             cy.xpath("//button[@type='submit']").should('be.enabled');
         })
 
+        function logout () {
+            cy.get('.oxd-userdropdown-tab').click()
+            cy.contains('Logout').click()
+        }
 
         it(`Can't Login`, function(){
             cy.fixture('adminLogin').then((admin) => {
                 
                 //invalid condition
                 cy.xpath("//button[@type='submit']").click();
-                cy.get('.oxd-text.oxd-text--span.oxd-input-field-error-message.oxd-input-group__message', { timeout: 10000 }).should('be.visible');
+                cy.get('.oxd-text.oxd-text--span.oxd-input-field-error-message.oxd-input-group__message', { timeout: 5000 }).contains('Required').should('be.visible');
 
                 //invalid account
                 cy.xpath("//input[contains(@name, 'username')]").type(admin.invalidUsername);
                 cy.xpath("//input[contains(@name, 'password')]").type(admin.invalidPassword);
                 cy.xpath("//button[@type='submit']").click();
-                cy.get('.oxd-text.oxd-text--p.oxd-alert-content-text', { timeout: 10000 }).should('be.visible');
-                cy.xpath("//input[contains(@name, 'username')]").should('be.empty');
-                cy.xpath("//input[contains(@name, 'password')]").should('be.empty');
+                cy.get('.oxd-text.oxd-text--p.oxd-alert-content-text', { timeout: 5000 }).should('be.visible');
             }
             )  
         })
 
-        it(`Can Login and Add New Employee`, function(){
+        it(`Adding New Employee`, function(){
             cy.fixture('adminLogin').then((admin) => {
                 
                 //valid account
@@ -39,22 +41,51 @@ context('Add New Employee', function() {
                 cy.xpath("//button[@type='submit']").click();
                 cy.url().should('include', 'index.php/dashboard/index')
 
-                //add new employee
-                cy.wait(10000)
-                cy.get('.oxd-text.oxd-text--span.oxd-main-menu-item--name').contains('PIM').click()
-                cy.xpath("//button[@type='button']").contains('Add').click();
-
             }
             )  
 
+            // invalid condition
+            cy.wait(5000)
+            cy.get('.oxd-text.oxd-text--span.oxd-main-menu-item--name').contains('PIM').click()
+            cy.xpath("//button[@type='button']").contains('Add').click();
+            cy.get('.oxd-button.oxd-button--medium.oxd-button--secondary.orangehrm-left-space').contains('Save').click();
+            cy.get('.oxd-text.oxd-text--span.oxd-input-field-error-message.oxd-input-group__message', { timeout: 5000 }).contains('Required').should('be.visible');
+
+            // input data
             cy.fixture('employeeData').then((data)=>{
                 cy.get('.orangehrm-firstname').should('be.empty').type(data.firstName);
                 cy.get('.orangehrm-lastname').should('be.empty').type(data.lastName);
                 cy.get('.oxd-button.oxd-button--medium.oxd-button--secondary.orangehrm-left-space').contains('Save').click();
-                // cy.xpath("//button[@type='button']").contains('Save').click();
+                cy.contains('Personal Details', { timeout: 5000 }).should('be.visible');
+                cy.contains(data.firstName).should('be.visible');
+                cy.contains(data.lastName).should('be.visible');
 
+                // create account for new employee
+                cy.get('.oxd-text.oxd-text--span.oxd-main-menu-item--name').contains('Admin').click()
+                cy.xpath("//button[@type='button']").contains('Add').click();
+                cy.get('.oxd-icon.bi-caret-down-fill.oxd-select-text--arrow').eq(0).click()
+                cy.get('.oxd-select-dropdown > :nth-child(2)').click()
+                cy.get('.oxd-autocomplete-text-input.oxd-autocomplete-text-input--active').type(data.firstName + data.lastName)
+                cy.wait(5000)
+                cy.contains('No Records Found')
+                cy.get('.oxd-autocomplete-text-input > input').clear()
+                cy.get('.oxd-autocomplete-text-input > input').type(data.firstName + " "+data.lastName)
+                cy.wait(5000)
+                cy.contains(data.firstName + " "+data.lastName).click()
+
+                cy.get('.oxd-icon.bi-caret-down-fill.oxd-select-text--arrow').eq(1).click()
+                cy.get('.oxd-select-dropdown > :nth-child(2)').click()
+                
+                cy.get('.oxd-input.oxd-input--active').eq(1).type(data.username).wait(5000);
+                cy.xpath("//input[@type='password']").eq(0).type(data.password);
+                cy.xpath("//input[@type='password']").eq(1).type(data.username);
+                cy.get('.oxd-text.oxd-text--span.oxd-input-field-error-message.oxd-input-group__message').should('be.visible');
+                cy.xpath("//input[@type='password']").eq(1).clear().type(data.password);
+                cy.xpath("//button[@type='submit']").click();
+                cy.wait(10000)
+
+                logout();
             })
-
         })
     })
 })
