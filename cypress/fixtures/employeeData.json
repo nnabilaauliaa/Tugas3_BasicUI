@@ -2,6 +2,8 @@
     "firstName": "Nabila",
     "lastName": "Doe",
     "username": "nabiladoe",
-    "password": "@Nabiladoe29"
+    "password": "@Nabiladoe29",
+    "invalidReason": "Melahirkan",
+    "validReason": "2"
 
 }
